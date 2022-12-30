@@ -2,6 +2,8 @@
 //SPDX-License-Identifier: BSD-3-Clause
 
 use std::process;
+use nix::unistd::execvp;
+use std::ffi::CString;
 use crate::{ShellCore,Feeder};
 
 pub struct Command {
@@ -13,7 +15,16 @@ impl Command {
         if self.text == "exit\n" {
             process::exit(0);
         }
-        print!("{}", self.text);
+
+        let mut words = vec![]; // ベクタを作る
+        for w in self.text.trim_end().split(' ') { // 空白で分割
+            words.push(CString::new(w.to_string()).unwrap());
+        };
+
+        println!("{:?}", words);
+        if words.len() > 0 {
+            println!("{:?}", execvp(&words[0], &words));
+        }
     }
 
     pub fn parse(feeder: &mut Feeder, _core: &mut ShellCore) -> Option<Command> {
