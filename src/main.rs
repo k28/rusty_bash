@@ -41,10 +41,9 @@ fn main_loop(core: &mut ShellCore) {
     let mut feeder = Feeder::new();
     loop {
         if feeder.feed_line(core) {
-            if let Some(mut c) = Command::parse(&mut feeder, core){
-                c.exec(core);
-            }else{
-                process::exit(1);
+            match Command::parse(&mut feeder, core){
+                Some(mut c) => c.exec(core),
+                None => process::exit(1)
             }
         }
     }
